@@ -7,6 +7,7 @@
 
 import { Websocket } from './socket/websocket'
 import GlobalVars from '../script/global/global'
+import { getRandomInt } from './helper/getRandomInt';
 
 const { ccclass, property } = cc._decorator;
 
@@ -15,6 +16,11 @@ let score_player2 = 0
 
 @ccclass
 export default class NewClass extends cc.Component {
+
+    curPlayer: number = 1;
+
+    loginUser: string;
+
     @property(cc.Node)
     root: cc.Node = null
 
@@ -142,11 +148,15 @@ export default class NewClass extends cc.Component {
     }
 
     async start() {
-        console.log("on keydown here")
-        this.labelUser.string = GlobalVars.gusername
-        var result = await Websocket({ "data": GlobalVars.gusername }, "addPlayer", 281)
-        console.log("result is " + result)
+        this.loginUser = GlobalVars.gusername
 
+        // var randomRoom = getRandomInt(100000)
+
+        var result = await Websocket({ "input": this.loginUser }, "addPlayer", 996)
+
+        var obj = JSON.parse(result.toString());
+
+        this.curPlayer += obj.Data.indexOf(this.loginUser)
 
         this.addPoint_player1(1, 1)
         this.addPoint_player1(2, 1)
@@ -155,13 +165,13 @@ export default class NewClass extends cc.Component {
         this.score_player1 = 10
 
 
-        // this.addPoint_player2(20, 20)
-        // this.addPoint_player2(19, 20)
-        // this.addPoint_player2(18, 20)
-        // this.addFood_player2()
-        // this.score_player2 = 0
+        this.addPoint_player2(20, 20)
+        this.addPoint_player2(19, 20)
+        this.addPoint_player2(18, 20)
+        this.addFood_player2()
+        this.score_player2 = 0
 
-        // this.timer = setInterval(this.move.bind(this), 1000)
+        this.timer = setInterval(this.move.bind(this), 1000)
     }
 
     move() {
@@ -267,6 +277,7 @@ export default class NewClass extends cc.Component {
                 break
         }
 
+        // Collition logic
         if (point_player1.x < 1 || point_player1.y < 1 || point_player1.x > this.size.x || point_player1.y > this.size.y) {
             window.alert("PLAYER 1 - GAME OVER / COLLIDE WITH WALL")
             this.over()
