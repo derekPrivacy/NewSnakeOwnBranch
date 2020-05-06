@@ -31,7 +31,7 @@ export default class NewClass extends cc.Component {
         //var url = "https://cors-anywhere.herokuapp.com/http://3.14.4.184:8081/api/validateUser"
         var url = "http://3.14.4.184:8081/api/validateUser"
 
-        loginPostApi(url, body, this.textLabel)
+        loginPostApi(url, body, this.textLabel, this.username.string)
     }
 
     register() {
@@ -48,12 +48,12 @@ export default class NewClass extends cc.Component {
 
         if (!reEmail.test(this.username.string)) {
             this.textLabel.string = "user name must be email address"
-        } 
+        }
         else if (!rePassword.test(this.password.string)) {
             this.textLabel.string = "password must be upper lower case and number mix"
         } else {
             registerPostApi(url, body, this.textLabel)
-            }
+        }
     }
 
     // LIFE-CYCLE CALLBACKS:

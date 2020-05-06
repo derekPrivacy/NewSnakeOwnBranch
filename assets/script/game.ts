@@ -5,7 +5,10 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-const {ccclass, property} = cc._decorator;
+import { Websocket } from './socket/websocket'
+import GlobalVars from '../script/global/global'
+
+const { ccclass, property } = cc._decorator;
 
 let score_player1 = 0
 let score_player2 = 0
@@ -13,7 +16,7 @@ let score_player2 = 0
 @ccclass
 export default class NewClass extends cc.Component {
     @property(cc.Node)
-    root : cc.Node = null
+    root: cc.Node = null
 
     @property(cc.SpriteFrame)
     sprite: cc.SpriteFrame = null
@@ -24,28 +27,31 @@ export default class NewClass extends cc.Component {
     @property(cc.Label)
     label_player2: cc.Label = null
 
+    @property(cc.Label)
+    labelUser: cc.Label = null
+
     moveAction: cc.ActionInterval;
     map_player1: any = {}
     map_player2: any = {}
-    score_player1:number = 0
-    score_player2:number = 0
+    score_player1: number = 0
+    score_player2: number = 0
     size = {
-        x:20,
-        y:20
+        x: 20,
+        y: 20
     }
     food_player1 = {
-        x:0,
-        y:0
+        x: 0,
+        y: 0
     }
     food_player2 = {
-        x:0,
-        y:0
+        x: 0,
+        y: 0
     }
     direction_player1: cc.macro.KEY = cc.macro.KEY.right
     direction_player2: cc.macro.KEY = cc.macro.KEY.left
-    timer:any
+    timer: any
 
-    
+
     up_player1() {
         this.direction_player1 = cc.macro.KEY.up
     }
@@ -59,7 +65,7 @@ export default class NewClass extends cc.Component {
         this.direction_player1 = cc.macro.KEY.right
     }
 
-    
+
     up_player2() {
         this.direction_player2 = cc.macro.KEY.up
     }
@@ -96,9 +102,7 @@ export default class NewClass extends cc.Component {
         }
     }
 
-    onLoad () {
-        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown.bind(this))
-    }
+
 
     onKeyDown(event) {
         switch (event.keyCode) {
@@ -132,20 +136,32 @@ export default class NewClass extends cc.Component {
         }
     }
 
-    start () {
-        this.addPoint_player1(1,1)
-        this.addPoint_player1(2,1)
-        this.addPoint_player1(3,1)
+    onLoad() {
+        console.log("on load here")
+        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown.bind(this))
+    }
+
+    async start() {
+        console.log("on keydown here")
+        this.labelUser.string = GlobalVars.gusername
+        var result = await Websocket({ "data": GlobalVars.gusername }, "addPlayer", 281)
+        console.log("result is " + result)
+
+
+        this.addPoint_player1(1, 1)
+        this.addPoint_player1(2, 1)
+        this.addPoint_player1(3, 1)
         this.addFood_player1()
-        this.score_player1 = 0
+        this.score_player1 = 10
 
-        this.addPoint_player2(20,20)
-        this.addPoint_player2(19,20)
-        this.addPoint_player2(18,20)
-        this.addFood_player2()
-        this.score_player2 = 0
 
-        this.timer = setInterval(this.move.bind(this), 300)
+        // this.addPoint_player2(20, 20)
+        // this.addPoint_player2(19, 20)
+        // this.addPoint_player2(18, 20)
+        // this.addFood_player2()
+        // this.score_player2 = 0
+
+        // this.timer = setInterval(this.move.bind(this), 1000)
     }
 
     move() {
@@ -154,7 +170,7 @@ export default class NewClass extends cc.Component {
         const lastSecond_player1 = map_player1[map_player1.length - 2]
         const last_player1 = map_player1[map_player1.length - 1]
         const point_player1 = { x: last_player1[0], y: last_player1[1] }
-        
+
         const map_player2 = this.getMap_player2()
         const first_player2 = map_player2[0]
         const lastSecond_player2 = map_player2[map_player2.length - 2]
@@ -181,7 +197,7 @@ export default class NewClass extends cc.Component {
                 type_player1 = cc.macro.KEY.right
             }
         }
-        const direction= [
+        const direction = [
             [cc.macro.KEY.left, cc.macro.KEY.right],
             [cc.macro.KEY.up, cc.macro.KEY.down]
         ]
@@ -207,7 +223,7 @@ export default class NewClass extends cc.Component {
                 point_player1.x++
                 break
         }
-        
+
         let type_player2
         if (lastSecond_player2[0] === last_player2[0]) {
             // 竖着排列
@@ -293,7 +309,7 @@ export default class NewClass extends cc.Component {
             this.score_player1--
             this.label_player1.string = `PLAYER 1 \n 得分：${this.score_player1}`
             this.addFood_player2()
-        } 
+        }
 
         if (point_player2.x === this.food_player1.x && point_player2.y === this.food_player1.y) {
             this.score_player2--
@@ -308,7 +324,7 @@ export default class NewClass extends cc.Component {
         } else {
             this.delPoint_player1(first_player1[0], first_player1[1])
         }
-        
+
         if (point_player2.x === this.food_player2.x && point_player2.y === this.food_player2.y) {
             this.score_player2++
             this.label_player2.string = `PLAYER 2 \n 得分： ${this.score_player2}`
@@ -316,7 +332,7 @@ export default class NewClass extends cc.Component {
         } else {
             this.delPoint_player2(first_player2[0], first_player2[1])
         }
-        
+
         this.addPoint_player1(point_player1.x, point_player1.y)
         this.addPoint_player2(point_player2.x, point_player2.y)
     }
@@ -327,6 +343,7 @@ export default class NewClass extends cc.Component {
 
     addFood_player1() {
         this.delFood_player1()
+        //websocket delete food
         const map = this.getMap_player1().sort((a: number, b: number) => this.getMapNumber(a[0], a[1]) - this.getMapNumber(b[0], b[1]))
         const random = this.randomNum(1, this.size.x * this.size.y - map.length)
         for (let i = 0; i < map.length; i++) {
@@ -341,6 +358,7 @@ export default class NewClass extends cc.Component {
         const pointLast = this.getNumerMap(random + map.length)
         this.food_player1 = pointLast
         this.addPoint_player1(pointLast.x, pointLast.y, cc.Color.BLUE)
+        //return new food to websocket
     }
 
     delFood_player1() {

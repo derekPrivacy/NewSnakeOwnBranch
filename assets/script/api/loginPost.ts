@@ -1,4 +1,6 @@
-export function loginPostApi(url, body, txtlabel) {
+import GlobalVars from '../global/global'
+
+export function loginPostApi(url, body, txtlabel, username) {
 
     //rest api
     let xhr = new XMLHttpRequest();
@@ -16,6 +18,8 @@ export function loginPostApi(url, body, txtlabel) {
             if (response == '"match"') {
                 console.log("login in")
                 txtlabel.string = "login successful"
+
+                GlobalVars.gusername = username
                 cc.director.loadScene('gameScene')
             } else {
                 txtlabel.string = "wrong username/password"
