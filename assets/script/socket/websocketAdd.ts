@@ -15,19 +15,23 @@ export function WebsocketAdd(object, msgType, roomNumber) {
         // Connection opened
         socket.addEventListener('open', function (event) {
             console.log("connected")
-            var msg = { "type": msgType, "RoomID": parseInt(roomNumber), "data": object }
 
-            console.log("in this case " + JSON.stringify(msg))
+            if (msgType == "addPlayer") {
+                var msg = { "type": msgType, "RoomID": parseInt(roomNumber) }
 
-            socket.send(JSON.stringify(msg));
+                msg["data"] = object["input"]
 
+                console.log("in this case " + JSON.stringify(msg))
+
+                socket.send(JSON.stringify(msg));
+            }
         });
 
         // Listen for messages
         socket.addEventListener('message', function (event) {
             console.log("message")
             console.log("respoonse back " + JSON.parse(JSON.stringify(event.data)))
-
+            resolve(JSON.parse(JSON.stringify(event.data)))
         });
     })
 }

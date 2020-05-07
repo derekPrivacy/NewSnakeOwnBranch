@@ -531,10 +531,62 @@ export default class NewClass extends cc.Component {
     }
 
 
-    async update(res) {
-        console.log(res.Avatar)
-        // this.direction_player1 = cc.macro.KEY.right ? this.direction_player1 = cc.macro.KEY.down : this.direction_player1 = cc.macro.KEY.right
+    update(res) {
+        // console.log(res.Avatar)
 
-        var result = await Websocket({}, "hello", 99888)
+
+    }
+
+    async  asyncCallBack() {
+
+
+    }
+
+    async lateUpdate(dt) {
+        // var result = Websocket({}, "hello", 99888)
+
+        // var syncDir = result["Avatar"][0]["Direction"]
+
+        Websocket({}, "hello", 99888)
+        //hello event 应该写在 WebsocketAdd里面，因为是WebsocketAdd在给response
+
+
+        var result = await WebsocketAdd({}, "waiting", 99888)
+
+        var syncDir = result["Avatar"][0]["Direction"]
+
+        console.log("yoyoyooyoyoy!!! " + syncDir)
+
+        switch (syncDir) {
+            case "up":
+                this.direction_player1 = cc.macro.KEY.up
+                break
+            case "down":
+                this.direction_player1 = cc.macro.KEY.down
+                break
+            case "left":
+                this.direction_player1 = cc.macro.KEY.left
+                break
+            case "right":
+                this.direction_player1 = cc.macro.KEY.right
+                break
+        }
+
+
+
+        // switch (syncDir) {
+        //     case "up":
+        //         this.direction_player1 = cc.macro.KEY.up
+        //         break
+        //     case "down":
+        //         this.direction_player1 = cc.macro.KEY.down
+        //         break
+        //     case "left":
+        //         this.direction_player1 = cc.macro.KEY.left
+        //         break
+        //     case "right":
+        //         this.direction_player1 = cc.macro.KEY.right
+        //         break
+        // }
     }
 }
