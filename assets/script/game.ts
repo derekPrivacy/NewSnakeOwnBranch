@@ -6,6 +6,7 @@
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
 import { Websocket } from './socket/websocket'
+import { WebsocketAdd } from './socket/websocketAdd'
 import GlobalVars from '../script/global/global'
 import { getRandomInt } from './helper/getRandomInt';
 
@@ -17,10 +18,8 @@ let score_player2 = 0
 @ccclass
 export default class NewClass extends cc.Component {
 
-    curPlayer: number = 1;
 
-    loginUser: string;
-
+    //
     @property(cc.Node)
     root: cc.Node = null
 
@@ -35,6 +34,19 @@ export default class NewClass extends cc.Component {
 
     @property(cc.Label)
     labelUser: cc.Label = null
+
+    @property(cc.Sprite)
+    dpad_player1: cc.Sprite = null
+
+    @property(cc.Sprite)
+    dpad_player2: cc.Sprite = null
+    //
+
+    // global var
+    wsResponse: any;
+
+    curPlayer: number = 1;
+    loginUser: string;
 
     moveAction: cc.ActionInterval;
     map_player1: any = {}
@@ -56,18 +68,34 @@ export default class NewClass extends cc.Component {
     direction_player1: cc.macro.KEY = cc.macro.KEY.right
     direction_player2: cc.macro.KEY = cc.macro.KEY.left
     timer: any
+    //
 
+
+    wsHandleMove(direction) {
+        var obj = {
+            "avatarId": this.curPlayer,
+            "positionX": 0,
+            "positionY": 0,
+            "bodyLength": 0,
+            "direction": direction,
+        }
+        this.wsResponse = Websocket(obj, "updateAvatar", 99888)
+    }
 
     up_player1() {
+        this.wsHandleMove("up")
         this.direction_player1 = cc.macro.KEY.up
     }
     down_player1() {
+        this.wsHandleMove("down")
         this.direction_player1 = cc.macro.KEY.down
     }
     left_player1() {
+        this.wsHandleMove("left")
         this.direction_player1 = cc.macro.KEY.left
     }
     right_player1() {
+        this.wsHandleMove("right")
         this.direction_player1 = cc.macro.KEY.right
     }
 
@@ -148,15 +176,21 @@ export default class NewClass extends cc.Component {
     }
 
     async start() {
+        cc.game.setFrameRate(10);
+
         this.loginUser = GlobalVars.gusername
 
         // var randomRoom = getRandomInt(100000)
 
-        var result = await Websocket({ "input": this.loginUser }, "addPlayer", 996)
+        var result = await WebsocketAdd({ "input": this.loginUser }, "addPlayer", 99888)
 
         var obj = JSON.parse(result.toString());
 
         this.curPlayer += obj.Data.indexOf(this.loginUser)
+
+        this.labelUser.string = this.curPlayer.toString()
+
+        // this.curPlayer == 1 ? this.dpad_player2 == null : this.dpad_player1 == null
 
         this.addPoint_player1(1, 1)
         this.addPoint_player1(2, 1)
@@ -171,7 +205,7 @@ export default class NewClass extends cc.Component {
         this.addFood_player2()
         this.score_player2 = 0
 
-        this.timer = setInterval(this.move.bind(this), 1000)
+        this.timer = setInterval(this.move.bind(this), 5000)
     }
 
     move() {
@@ -277,6 +311,7 @@ export default class NewClass extends cc.Component {
                 break
         }
 
+
         // Collition logic
         if (point_player1.x < 1 || point_player1.y < 1 || point_player1.x > this.size.x || point_player1.y > this.size.y) {
             window.alert("PLAYER 1 - GAME OVER / COLLIDE WITH WALL")
@@ -316,6 +351,8 @@ export default class NewClass extends cc.Component {
             }
         }
 
+
+        // get points logic
         if (point_player1.x === this.food_player2.x && point_player1.y === this.food_player2.y) {
             this.score_player1--
             this.label_player1.string = `PLAYER 1 \n 得分：${this.score_player1}`
@@ -493,5 +530,11 @@ export default class NewClass extends cc.Component {
         return parseInt((Math.random() * (maxNum - minNum + 1) + minNum) + '', 10)
     }
 
-    // update (dt) {}
+
+    async update(res) {
+        console.log(res.Avatar)
+        // this.direction_player1 = cc.macro.KEY.right ? this.direction_player1 = cc.macro.KEY.down : this.direction_player1 = cc.macro.KEY.right
+
+        var result = await Websocket({}, "hello", 99888)
+    }
 }

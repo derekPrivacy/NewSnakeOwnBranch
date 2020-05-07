@@ -1,9 +1,11 @@
-export function Websocket(object, msgType, roomNumber) {
+export function Websocket(object, msgType, roomNumber, ) {
+
+
 
     return new Promise(function (resolve, reject) {
         console.log("ws passed room number " + roomNumber)
 
-        var socket = new WebSocket('ws://localhost:8081/api/ws');
+        var socket = new WebSocket('ws://localhost:8081/api/socket');
 
         // on websocket error
         socket.addEventListener('error', function (event) {
@@ -17,7 +19,7 @@ export function Websocket(object, msgType, roomNumber) {
             var msg = { "type": msgType, "RoomID": parseInt(roomNumber) }
 
             if (msgType == "hello") {
-                msg["data"] = "";
+
             }
             else if (msgType == "addPlayer") {
                 msg["data"] = object["input"]
@@ -40,10 +42,14 @@ export function Websocket(object, msgType, roomNumber) {
 
         // Listen for messages
         socket.addEventListener('message', function (event) {
-            console.log("this stage")
 
-            console.log("message")
-            console.log("respoonse back " + JSON.parse(JSON.stringify(event.data)))
+            console.log("message back " + JSON.parse(JSON.stringify(event.data)))
+
+            var res = JSON.parse(JSON.stringify(event.data))
+
+
+
+            // updateCallBack(JSON.parse(JSON.stringify(event.data)))
             resolve(JSON.parse(JSON.stringify(event.data)))
 
         });

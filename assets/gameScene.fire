@@ -815,8 +815,8 @@
       "__id__": 2
     },
     "component": "",
-    "_componentId": "860ce8hxGxOc65PRWFjlPtl",
-    "handler": "up",
+    "_componentId": "3ba67nCiZpOTrRy2zF0QHiq",
+    "handler": "up_player1",
     "customEventData": ""
   },
   {
@@ -1186,8 +1186,8 @@
       "__id__": 2
     },
     "component": "",
-    "_componentId": "860ce8hxGxOc65PRWFjlPtl",
-    "handler": "down",
+    "_componentId": "3ba67nCiZpOTrRy2zF0QHiq",
+    "handler": "down_player1",
     "customEventData": ""
   },
   {
@@ -1557,8 +1557,8 @@
       "__id__": 2
     },
     "component": "",
-    "_componentId": "860ce8hxGxOc65PRWFjlPtl",
-    "handler": "left",
+    "_componentId": "3ba67nCiZpOTrRy2zF0QHiq",
+    "handler": "left_player1",
     "customEventData": ""
   },
   {
@@ -1928,8 +1928,8 @@
       "__id__": 2
     },
     "component": "",
-    "_componentId": "860ce8hxGxOc65PRWFjlPtl",
-    "handler": "right",
+    "_componentId": "3ba67nCiZpOTrRy2zF0QHiq",
+    "handler": "right_player1",
     "customEventData": ""
   },
   {
@@ -2406,8 +2406,8 @@
       "__id__": 2
     },
     "component": "",
-    "_componentId": "552c65OqhtNxbXGNiq/RrPP",
-    "handler": "up",
+    "_componentId": "3ba67nCiZpOTrRy2zF0QHiq",
+    "handler": "up_player2",
     "customEventData": ""
   },
   {
@@ -2777,8 +2777,8 @@
       "__id__": 2
     },
     "component": "",
-    "_componentId": "552c65OqhtNxbXGNiq/RrPP",
-    "handler": "down",
+    "_componentId": "3ba67nCiZpOTrRy2zF0QHiq",
+    "handler": "down_player2",
     "customEventData": ""
   },
   {
@@ -3148,8 +3148,8 @@
       "__id__": 2
     },
     "component": "",
-    "_componentId": "552c65OqhtNxbXGNiq/RrPP",
-    "handler": "left",
+    "_componentId": "3ba67nCiZpOTrRy2zF0QHiq",
+    "handler": "left_player2",
     "customEventData": ""
   },
   {
@@ -3519,8 +3519,8 @@
       "__id__": 2
     },
     "component": "",
-    "_componentId": "552c65OqhtNxbXGNiq/RrPP",
-    "handler": "right",
+    "_componentId": "3ba67nCiZpOTrRy2zF0QHiq",
+    "handler": "right_player2",
     "customEventData": ""
   },
   {
@@ -3668,7 +3668,7 @@
   {
     "__type__": "cc.Node",
     "_name": "label_P1",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 2
     },
@@ -4013,6 +4013,12 @@
     },
     "labelUser": {
       "__id__": 84
+    },
+    "dpad_player1": {
+      "__id__": 41
+    },
+    "dpad_player2": {
+      "__id__": 75
     },
     "_id": "12fBJFgTJMGL3Hj/JHC6W4"
   }
