@@ -1,6 +1,9 @@
-export function WebsocketAdd(object, msgType, roomNumber) {
+export function WebsocketAdd(object, msgType, roomNumber, avatarObj) {
 
     return new Promise(function (resolve, reject) {
+
+        var recordObj = avatarObj
+
         console.log("ws passed room number " + roomNumber)
         console.log("type message " + msgType)
 
@@ -16,21 +19,33 @@ export function WebsocketAdd(object, msgType, roomNumber) {
         socket.addEventListener('open', function (event) {
             console.log("connected")
 
+            var msg = { "type": msgType, "RoomID": parseInt(roomNumber) }
+
             if (msgType == "addPlayer") {
-                var msg = { "type": msgType, "RoomID": parseInt(roomNumber) }
 
                 msg["data"] = object["input"]
 
                 console.log("in this case " + JSON.stringify(msg))
-
-                socket.send(JSON.stringify(msg));
             }
+
+            socket.send(JSON.stringify(msg));
         });
 
         // Listen for messages
         socket.addEventListener('message', function (event) {
             console.log("message")
             console.log("respoonse back " + JSON.parse(JSON.stringify(event.data)))
+
+            var response = JSON.parse(event.data)
+
+            var check1 = recordObj.direction != null
+            var check2 = response["Avatar"] != null
+
+            // update that global var using response
+            if (recordObj.direction != null && response["Avatar"] != null) {
+                recordObj.direction = response["Avatar"][0]["Direction"]
+            }
+
             resolve(JSON.parse(JSON.stringify(event.data)))
         });
     })
