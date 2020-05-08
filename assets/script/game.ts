@@ -176,7 +176,6 @@ export default class NewClass extends cc.Component {
     }
 
     async start() {
-        cc.game.setFrameRate(10);
 
         this.loginUser = GlobalVars.gusername
 
@@ -205,7 +204,7 @@ export default class NewClass extends cc.Component {
         this.addFood_player2()
         this.score_player2 = 0
 
-        this.timer = setInterval(this.move.bind(this), 5000)
+        this.timer = setInterval(this.move.bind(this), 1000)
     }
 
     move() {
@@ -387,6 +386,16 @@ export default class NewClass extends cc.Component {
 
     over() {
         clearInterval(this.timer)
+        console.log("destroying")
+        this.onDestroy()
+    }
+
+    gameOver: boolean
+
+    onDestroy() {
+        this.gameOver = true
+        console.log("destroying!!!!!!!!!!!!!!!!!")
+        WebsocketAdd({}, "gameOver", 99888, this.avatarObjOne, this.avatarObjTwo)
     }
 
     addFood_player1() {
@@ -533,43 +542,44 @@ export default class NewClass extends cc.Component {
 
     async update(res) {
 
+        if (!this.gameOver) {
+            if (this.avatarObjOne.direction != "") {
+                switch (this.avatarObjOne.direction) {
+                    case "up":
+                        this.direction_player1 = cc.macro.KEY.up
+                        break
+                    case "down":
+                        this.direction_player1 = cc.macro.KEY.down
+                        break
+                    case "left":
+                        this.direction_player1 = cc.macro.KEY.left
+                        break
+                    case "right":
+                        this.direction_player1 = cc.macro.KEY.right
+                        break
+                }
 
-        if (this.avatarObjOne.direction != "") {
-            switch (this.avatarObjOne.direction) {
-                case "up":
-                    this.direction_player1 = cc.macro.KEY.up
-                    break
-                case "down":
-                    this.direction_player1 = cc.macro.KEY.down
-                    break
-                case "left":
-                    this.direction_player1 = cc.macro.KEY.left
-                    break
-                case "right":
-                    this.direction_player1 = cc.macro.KEY.right
-                    break
             }
 
-        }
-
-        if (this.avatarObjTwo.direction != "") {
-            switch (this.avatarObjTwo.direction) {
-                case "up":
-                    this.direction_player2 = cc.macro.KEY.up
-                    break
-                case "down":
-                    this.direction_player2 = cc.macro.KEY.down
-                    break
-                case "left":
-                    this.direction_player2 = cc.macro.KEY.left
-                    break
-                case "right":
-                    this.direction_player2 = cc.macro.KEY.right
-                    break
+            if (this.avatarObjTwo.direction != "") {
+                switch (this.avatarObjTwo.direction) {
+                    case "up":
+                        this.direction_player2 = cc.macro.KEY.up
+                        break
+                    case "down":
+                        this.direction_player2 = cc.macro.KEY.down
+                        break
+                    case "left":
+                        this.direction_player2 = cc.macro.KEY.left
+                        break
+                    case "right":
+                        this.direction_player2 = cc.macro.KEY.right
+                        break
+                }
             }
-        }
 
-        var result = await WebsocketAdd({}, "hello", 99888, this.avatarObjOne, this.avatarObjTwo)
+            var result = await WebsocketAdd({}, "hello", 99888, this.avatarObjOne, this.avatarObjTwo)
+        }
 
     }
 

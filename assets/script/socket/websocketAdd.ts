@@ -21,11 +21,20 @@ export function WebsocketAdd(object, msgType, roomNumber, avatarObjOne, avatarOb
 
             var msg = { "type": msgType, "RoomID": parseInt(roomNumber) }
 
-            if (msgType == "addPlayer") {
+            switch (msgType) {
+                case "hello":
 
-                msg["data"] = object["input"]
+                    break
 
-                console.log("in this case " + JSON.stringify(msg))
+                case "addPlayer":
+                    msg["data"] = object["input"]
+
+                    console.log("in this case " + JSON.stringify(msg))
+                    break
+
+                case "gameOver":
+
+                    break
             }
 
             socket.send(JSON.stringify(msg));
