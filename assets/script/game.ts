@@ -84,19 +84,19 @@ export default class NewClass extends cc.Component {
 
     up_player1() {
         this.wsHandleMove("up")
-        this.direction_player1 = cc.macro.KEY.up
+
     }
     down_player1() {
         this.wsHandleMove("down")
-        this.direction_player1 = cc.macro.KEY.down
+
     }
     left_player1() {
         this.wsHandleMove("left")
-        this.direction_player1 = cc.macro.KEY.left
+
     }
     right_player1() {
         this.wsHandleMove("right")
-        this.direction_player1 = cc.macro.KEY.right
+
     }
 
 
@@ -182,7 +182,7 @@ export default class NewClass extends cc.Component {
 
         // var randomRoom = getRandomInt(100000)
 
-        var result = await WebsocketAdd({ "input": this.loginUser }, "addPlayer", 99888, this.avatarObj)
+        var result = await WebsocketAdd({ "input": this.loginUser }, "addPlayer", 99888, this.avatarObjOne, this.avatarObjTwo)
 
         var obj = JSON.parse(result.toString());
 
@@ -531,33 +531,11 @@ export default class NewClass extends cc.Component {
     }
 
 
-    update(res) {
-        // console.log(res.Avatar)
+    async update(res) {
 
 
-    }
-
-    async  asyncCallBack() {
-
-
-    }
-
-    avatarObj = { direction: "" };
-
-    async lateUpdate(dt) {
-        // var result = Websocket({}, "hello", 99888)
-
-        // var syncDir = result["Avatar"][0]["Direction"]
-
-        // Websocket({}, "hello", 99888)
-        //hello event 应该写在 WebsocketAdd里面，因为是WebsocketAdd在给response
-
-
-        // update avatar movement base on global var
-        if (this.avatarObj.direction != "") {
-            console.log("yoyoyooyoyoy!!! " + this.avatarObj.direction)
-
-            switch (this.avatarObj.direction) {
+        if (this.avatarObjOne.direction != "") {
+            switch (this.avatarObjOne.direction) {
                 case "up":
                     this.direction_player1 = cc.macro.KEY.up
                     break
@@ -571,9 +549,32 @@ export default class NewClass extends cc.Component {
                     this.direction_player1 = cc.macro.KEY.right
                     break
             }
+
         }
 
-        var result = await WebsocketAdd({}, "hello", 99888, this.avatarObj)
+        if (this.avatarObjTwo.direction != "") {
+            switch (this.avatarObjTwo.direction) {
+                case "up":
+                    this.direction_player2 = cc.macro.KEY.up
+                    break
+                case "down":
+                    this.direction_player2 = cc.macro.KEY.down
+                    break
+                case "left":
+                    this.direction_player2 = cc.macro.KEY.left
+                    break
+                case "right":
+                    this.direction_player2 = cc.macro.KEY.right
+                    break
+            }
+        }
+
+        var result = await WebsocketAdd({}, "hello", 99888, this.avatarObjOne, this.avatarObjTwo)
 
     }
+
+
+    avatarObjOne = { id: 1, direction: "" };
+    avatarObjTwo = { id: 2, direction: "" };
+
 }
