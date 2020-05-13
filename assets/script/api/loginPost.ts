@@ -21,7 +21,11 @@ export function loginPostApi(url, body, txtlabel, username) {
 
                 GlobalVars.gusername = username
                 cc.director.loadScene('gameScene')
-            } else {
+            } else if (response == '"doubleLogin"') {
+                console.log("double login")
+                txtlabel.string = "double login"
+            }
+            else {
                 txtlabel.string = "wrong username/password"
             }
         }

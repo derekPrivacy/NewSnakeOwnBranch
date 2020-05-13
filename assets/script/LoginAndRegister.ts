@@ -28,34 +28,33 @@ export default class NewClass extends cc.Component {
 
     login() {
         var body = { 'user': this.username.string, 'password': this.password.string };
-        //var url = "https://cors-anywhere.herokuapp.com/http://3.14.4.184:8081/api/validateUser"
-        var url = "http://3.14.4.184:8081/api/validateUser"
+        //var url = "https://cors-anywhere.herokuapp.com/http://18.219.41.101:8081/api/validateUser"
+        var url = "http://18.219.41.101:8081/api/validateUser"
 
         loginPostApi(url, body, this.textLabel, this.username.string)
     }
 
     register() {
         var body = { 'user': this.username.string, 'password': this.password.string };
-        //var url = "https://cors-anywhere.herokuapp.com/http://3.14.4.184:8081/api/createUser"
-        var url = "http://3.14.4.184:8081/api/createUser"
+        //var url = "https://cors-anywhere.herokuapp.com/http://18.219.41.101:8081/api/createUser"
+        var url = "http://18.219.41.101:8081/api/createUser"
 
 
-        // //check is email
-        // var reEmail = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+        //check is email
+        var reEmail = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 
-        // //check password is mix
-        // var rePassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/
+        //check password is mix
+        var rePassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/
 
-        // if (!reEmail.test(this.username.string)) {
-        //     this.textLabel.string = "user name must be email address"
-        // }
-        // else if (!rePassword.test(this.password.string)) {
-        //     this.textLabel.string = "password must be upper lower case and number mix"
-        // } else {
-        //     registerPostApi(url, body, this.textLabel)
-        // }
+        if (!reEmail.test(this.username.string)) {
+            this.textLabel.string = "user name must be email address"
+        }
+        else if (!rePassword.test(this.password.string)) {
+            this.textLabel.string = "password must be upper lower case and number mix"
+        } else {
+            registerPostApi(url, body, this.textLabel)
+        }
 
-        registerPostApi(url, body, this.textLabel)
     }
 
     // LIFE-CYCLE CALLBACKS:

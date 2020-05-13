@@ -15,6 +15,7 @@ const { ccclass, property } = cc._decorator;
 let score_player1 = 0
 let score_player2 = 0
 
+
 @ccclass
 export default class NewClass extends cc.Component {
 
@@ -176,12 +177,13 @@ export default class NewClass extends cc.Component {
     }
 
     async start() {
+        cc.game.setFrameRate(15)
 
         this.loginUser = GlobalVars.gusername
 
         // var randomRoom = getRandomInt(100000)
 
-        var result = await WebsocketAdd({ "input": this.loginUser }, "addPlayer", 99888, this.avatarObjOne, this.avatarObjTwo)
+        var result = await WebsocketAdd({ "input": this.loginUser }, "addPlayer", 99888, this.avatarObjOne, this.avatarObjTwo, this.shldFrameUpdate)
 
         var obj = JSON.parse(result.toString());
 
@@ -395,7 +397,7 @@ export default class NewClass extends cc.Component {
     onDestroy() {
         this.gameOver = true
         console.log("destroying!!!!!!!!!!!!!!!!!")
-        WebsocketAdd({}, "gameOver", 99888, this.avatarObjOne, this.avatarObjTwo)
+        WebsocketAdd({}, "gameOver", 99888, this.avatarObjOne, this.avatarObjTwo, this.shldFrameUpdate)
     }
 
     addFood_player1() {
@@ -540,51 +542,67 @@ export default class NewClass extends cc.Component {
     }
 
 
-    async update(res) {
 
-        if (!this.gameOver) {
-            if (this.avatarObjOne.direction != "") {
-                switch (this.avatarObjOne.direction) {
-                    case "up":
-                        this.direction_player1 = cc.macro.KEY.up
-                        break
-                    case "down":
-                        this.direction_player1 = cc.macro.KEY.down
-                        break
-                    case "left":
-                        this.direction_player1 = cc.macro.KEY.left
-                        break
-                    case "right":
-                        this.direction_player1 = cc.macro.KEY.right
-                        break
-                }
 
-            }
+    update(dt) {
 
-            if (this.avatarObjTwo.direction != "") {
-                switch (this.avatarObjTwo.direction) {
-                    case "up":
-                        this.direction_player2 = cc.macro.KEY.up
-                        break
-                    case "down":
-                        this.direction_player2 = cc.macro.KEY.down
-                        break
-                    case "left":
-                        this.direction_player2 = cc.macro.KEY.left
-                        break
-                    case "right":
-                        this.direction_player2 = cc.macro.KEY.right
-                        break
-                }
-            }
+        this.frameCounter += 1
 
-            var result = await WebsocketAdd({}, "hello", 99888, this.avatarObjOne, this.avatarObjTwo)
+        if (this.frameCounter == 10) {
+            WebsocketAdd({}, "hello", 99888, this.avatarObjOne, this.avatarObjTwo, this.shldFrameUpdate)
+            this.frameCounter = 0
         }
 
+        if (this.shldFrameUpdate.update) {
+
+            console.log("bingo")
+
+            if (!this.gameOver) {
+                if (this.avatarObjOne.direction != "") {
+                    switch (this.avatarObjOne.direction) {
+                        case "up":
+                            this.direction_player1 = cc.macro.KEY.up
+                            break
+                        case "down":
+                            this.direction_player1 = cc.macro.KEY.down
+                            break
+                        case "left":
+                            this.direction_player1 = cc.macro.KEY.left
+                            break
+                        case "right":
+                            this.direction_player1 = cc.macro.KEY.right
+                            break
+                    }
+
+                }
+
+                if (this.avatarObjTwo.direction != "") {
+                    switch (this.avatarObjTwo.direction) {
+                        case "up":
+                            this.direction_player2 = cc.macro.KEY.up
+                            break
+                        case "down":
+                            this.direction_player2 = cc.macro.KEY.down
+                            break
+                        case "left":
+                            this.direction_player2 = cc.macro.KEY.left
+                            break
+                        case "right":
+                            this.direction_player2 = cc.macro.KEY.right
+                            break
+                    }
+                }
+
+                this.shldFrameUpdate.update = false
+            }
+        }
     }
 
 
     avatarObjOne = { id: 1, direction: "" };
     avatarObjTwo = { id: 2, direction: "" };
+    frameCounter = 0;
+    shldFrameUpdate = { update: false }
+
 
 }

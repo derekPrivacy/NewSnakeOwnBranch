@@ -1,4 +1,4 @@
-export function WebsocketAdd(object, msgType, roomNumber, avatarObjOne, avatarObjTwo) {
+export function WebsocketAdd(object, msgType, roomNumber, avatarObjOne, avatarObjTwo, shldFrameUpdate) {
 
     return new Promise(function (resolve, reject) {
 
@@ -7,11 +7,11 @@ export function WebsocketAdd(object, msgType, roomNumber, avatarObjOne, avatarOb
         console.log("ws passed room number " + roomNumber)
         console.log("type message " + msgType)
 
-        var socket = new WebSocket('ws://localhost:8081/api/socketAdd');
+        var socket = new WebSocket('ws://18.219.41.101:8081/api/socketAdd');
 
         // on websocket error
         socket.addEventListener('error', function (event) {
-            console.log("error")
+            console.log("errorrrrrrrrr")
             console.log(event);
         });
 
@@ -58,6 +58,8 @@ export function WebsocketAdd(object, msgType, roomNumber, avatarObjOne, avatarOb
                     }
                 }
             }
+
+            shldFrameUpdate.update = true
 
             resolve(JSON.parse(JSON.stringify(event.data)))
         });
