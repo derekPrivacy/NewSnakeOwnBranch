@@ -1,11 +1,14 @@
-export function WebsocketAdd(object, msgType, roomNumber, avatarObjOne, avatarObjTwo, shldFrameUpdate) {
+export function websocketGame(
+    object, msgType, roomNumber, avatarObjOne, avatarObjTwo,
+    shldFrameUpdate, foodObj, shldFoodUpdate
+) {
 
     return new Promise(function (resolve, reject) {
 
         console.log("ws passed room number " + roomNumber)
         console.log("type message " + msgType)
 
-        var socket = new WebSocket('ws://18.219.41.101:8081/api/socketAdd');
+        var socket = new WebSocket('ws://localhost:8081/api/socketAdd');
 
         // on websocket error
         socket.addEventListener('error', function (event) {
@@ -29,6 +32,9 @@ export function WebsocketAdd(object, msgType, roomNumber, avatarObjOne, avatarOb
 
                     console.log("in this case " + JSON.stringify(msg))
                     break
+
+                case "spawnFood":
+                    msg["player1Food"] = object["player1Food"]
 
                 case "gameOver":
 
@@ -55,9 +61,24 @@ export function WebsocketAdd(object, msgType, roomNumber, avatarObjOne, avatarOb
                         avatarObjTwo.direction = response["Avatar"][i]["Direction"]
                     }
                 }
+                shldFrameUpdate.update = true
             }
 
-            shldFrameUpdate.update = true
+
+            if (response["Food"]["FoodType"] == "1") {
+                foodObj.foodOneX = response["Food"]["FoodOneX"]
+                foodObj.foodOneY = response["Food"]["FoodOneY"]
+
+                shldFoodUpdate.foodOneUpdate = true
+            } else if (response["Food"]["FoodType"] == "2") {
+                foodObj.foodTwoX = response["Food"]["FoodTwoX"]
+                foodObj.foodTwoY = response["Food"]["FoodTwoY"]
+                shldFoodUpdate.foodTwoUpdate = true
+            }
+
+            // if response["foodType"]=="1"    
+            // newFood= response["food..."]
+            // shldFoodOneUpdate=true
 
             resolve(JSON.parse(JSON.stringify(event.data)))
         });

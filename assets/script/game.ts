@@ -5,8 +5,9 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { Websocket } from './socket/websocket'
-import { WebsocketAdd } from './socket/websocketAdd'
+import { WebsocketPlayer } from './socket/websocketPlayer'
+import { websocketGame } from './socket/websocketGame'
+import { websocketFood } from './socket/websocketFood'
 import GlobalVars from '../script/global/global'
 import { getRandomInt } from './helper/getRandomInt';
 import gameStart from './gameComponent/gameStart';
@@ -78,6 +79,8 @@ export default class NewClass extends cc.Component {
 
     shldAddPlayer = false
     playerAdded = false
+
+
     //
 
 
@@ -89,7 +92,7 @@ export default class NewClass extends cc.Component {
             "bodyLength": 0,
             "direction": direction,
         }
-        this.wsResponse = Websocket(obj, "updateAvatar", 99888)
+        this.wsResponse = WebsocketPlayer(obj, "updateAvatar", 99888)
     }
 
     up_player1() {
@@ -175,7 +178,7 @@ export default class NewClass extends cc.Component {
 
         this.loginUser = GlobalVars.gusername
 
-        var result = await WebsocketAdd({ "input": this.loginUser }, "addPlayer", 99888, this.avatarObjOne, this.avatarObjTwo, this.shldFrameUpdate)
+        var result = await websocketGame({ "input": this.loginUser }, "addPlayer", 99888, this.avatarObjOne, this.avatarObjTwo, this.shldFrameUpdate, this.foodObj, this.shldFoodUpdate)
 
         var obj = JSON.parse(result.toString());
 
@@ -183,7 +186,7 @@ export default class NewClass extends cc.Component {
 
         this.labelUser.string = `on control ${this.curPlayer == 1 ? 'blue' : "red"} snake`
 
-        this.startCountdown(5)
+        this.startCountdown(1)
 
     }
 
@@ -411,7 +414,7 @@ export default class NewClass extends cc.Component {
     onDestroy() {
         this.gameOver = true
         console.log("destroying!!!!!!!!!!!!!!!!!")
-        WebsocketAdd({}, "gameOver", 99888, this.avatarObjOne, this.avatarObjTwo, this.shldFrameUpdate)
+        websocketGame({}, "gameOver", 99888, this.avatarObjOne, this.avatarObjTwo, this.shldFrameUpdate, this.foodObj, this.shldFoodUpdate)
     }
 
     addFood_player1() {
@@ -424,14 +427,22 @@ export default class NewClass extends cc.Component {
             if (random < num) {
                 const point = this.getNumerMap(random + i)
                 this.food_player1 = point
+                //my g
+                // websocketFood({ "foodType": "1", "foodOneX": point.x, "foodOneY": point.y }, "spawnFood", 99888)
                 this.addPoint_player1(point.x, point.y, cc.Color.BLUE)
                 return
             }
         }
         const pointLast = this.getNumerMap(random + map.length)
         this.food_player1 = pointLast
+
+        console.log("player 1 food position my G " + pointLast.x + " " + pointLast.y)
+
+        //send new player 1 food to websocekt and shldPlyr1FoodUp listen to websocket resposne 
+        //then inside update check shldPlyr1FoodUp flag to  render new player 1 food
+        // websocketFood({ "foodType": "1", "foodOneX": pointLast.x, "foodOneY": pointLast.y }, "spawnFood", 99888)
         this.addPoint_player1(pointLast.x, pointLast.y, cc.Color.BLUE)
-        //return new food to websocket
+
     }
 
     delFood_player1() {
@@ -564,54 +575,64 @@ export default class NewClass extends cc.Component {
 
         if (this.shldFrameUpdate.update) {
 
-            console.log("bingo")
-
-            if (!this.gameOver) {
-                if (this.avatarObjOne.direction != "") {
-                    switch (this.avatarObjOne.direction) {
-                        case "up":
-                            this.direction_player1 = cc.macro.KEY.up
-                            break
-                        case "down":
-                            this.direction_player1 = cc.macro.KEY.down
-                            break
-                        case "left":
-                            this.direction_player1 = cc.macro.KEY.left
-                            break
-                        case "right":
-                            this.direction_player1 = cc.macro.KEY.right
-                            break
-                    }
-
+            if (this.avatarObjOne.direction != "") {
+                switch (this.avatarObjOne.direction) {
+                    case "up":
+                        this.direction_player1 = cc.macro.KEY.up
+                        break
+                    case "down":
+                        this.direction_player1 = cc.macro.KEY.down
+                        break
+                    case "left":
+                        this.direction_player1 = cc.macro.KEY.left
+                        break
+                    case "right":
+                        this.direction_player1 = cc.macro.KEY.right
+                        break
                 }
 
-                if (this.avatarObjTwo.direction != "") {
-                    switch (this.avatarObjTwo.direction) {
-                        case "up":
-                            this.direction_player2 = cc.macro.KEY.up
-                            break
-                        case "down":
-                            this.direction_player2 = cc.macro.KEY.down
-                            break
-                        case "left":
-                            this.direction_player2 = cc.macro.KEY.left
-                            break
-                        case "right":
-                            this.direction_player2 = cc.macro.KEY.right
-                            break
-                    }
-                }
-
-                this.shldFrameUpdate.update = false
             }
+
+            if (this.avatarObjTwo.direction != "") {
+                switch (this.avatarObjTwo.direction) {
+                    case "up":
+                        this.direction_player2 = cc.macro.KEY.up
+                        break
+                    case "down":
+                        this.direction_player2 = cc.macro.KEY.down
+                        break
+                    case "left":
+                        this.direction_player2 = cc.macro.KEY.left
+                        break
+                    case "right":
+                        this.direction_player2 = cc.macro.KEY.right
+                        break
+                }
+            }
+
+            this.shldFrameUpdate.update = false
+
+        }
+
+        if (this.shldFoodUpdate.foodOneUpdate) {
+
+            this.addPoint_player1(this.foodObj.foodOneX, this.foodObj.foodOneY, cc.Color.BLUE)
+
+            this.shldFoodUpdate.foodOneUpdate = false
+        }
+
+        if (this.shldFoodUpdate.foodTwoUpdate) {
+
+            this.shldFoodUpdate.foodTwoUpdate = false
         }
     }
 
 
     avatarObjOne = { id: 1, direction: "" };
     avatarObjTwo = { id: 2, direction: "" };
-    frameCounter = 0;
     shldFrameUpdate = { update: false }
 
+    foodObj = { foodOneX: null, foodOneY: null, foodTwoX: null, foodTwoY: null }
+    shldFoodUpdate = { foodOneUpdate: false, foodTwoUpdate: false }
 
 }

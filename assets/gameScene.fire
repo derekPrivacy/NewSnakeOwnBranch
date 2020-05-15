@@ -192,7 +192,7 @@
       "array": [
         0,
         0,
-        527.4460965624248,
+        536.9357503463519,
         0,
         0,
         0,
@@ -2384,7 +2384,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 342.38,
+      "width": 411.31,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -2435,8 +2435,8 @@
       }
     ],
     "_useOriginalSize": false,
-    "_string": "wait player 2 join ...",
-    "_N$string": "wait player 2 join ...",
+    "_string": "wait other player join ...",
+    "_N$string": "wait other player join ...",
     "_fontSize": 40,
     "_lineHeight": 40,
     "_enableWrapText": true,
