@@ -9,6 +9,7 @@ import { Websocket } from './socket/websocket'
 import { WebsocketAdd } from './socket/websocketAdd'
 import GlobalVars from '../script/global/global'
 import { getRandomInt } from './helper/getRandomInt';
+import gameStart from './gameComponent/gameStart';
 
 const { ccclass, property } = cc._decorator;
 
@@ -43,6 +44,11 @@ export default class NewClass extends cc.Component {
     dpad_player2: cc.Sprite = null
     //
 
+
+    @property(cc.Label)
+    countDown: cc.Label = null
+
+
     // global var
     wsResponse: any;
 
@@ -69,6 +75,9 @@ export default class NewClass extends cc.Component {
     direction_player1: cc.macro.KEY = cc.macro.KEY.right
     direction_player2: cc.macro.KEY = cc.macro.KEY.left
     timer: any
+
+    shldAddPlayer = false
+    playerAdded = false
     //
 
 
@@ -98,20 +107,6 @@ export default class NewClass extends cc.Component {
     right_player1() {
         this.wsHandleMove("right")
 
-    }
-
-
-    up_player2() {
-        this.direction_player2 = cc.macro.KEY.up
-    }
-    down_player2() {
-        this.direction_player2 = cc.macro.KEY.down
-    }
-    left_player2() {
-        this.direction_player2 = cc.macro.KEY.left
-    }
-    right_player2() {
-        this.direction_player2 = cc.macro.KEY.right
     }
 
     getMap_player1(): any {
@@ -177,11 +172,8 @@ export default class NewClass extends cc.Component {
     }
 
     async start() {
-        cc.game.setFrameRate(15)
 
         this.loginUser = GlobalVars.gusername
-
-        // var randomRoom = getRandomInt(100000)
 
         var result = await WebsocketAdd({ "input": this.loginUser }, "addPlayer", 99888, this.avatarObjOne, this.avatarObjTwo, this.shldFrameUpdate)
 
@@ -189,15 +181,18 @@ export default class NewClass extends cc.Component {
 
         this.curPlayer += obj.Data.indexOf(this.loginUser)
 
-        this.labelUser.string = this.curPlayer.toString()
+        this.labelUser.string = `on control ${this.curPlayer == 1 ? 'blue' : "red"} snake`
 
-        // this.curPlayer == 1 ? this.dpad_player2 == null : this.dpad_player1 == null
+        this.startCountdown(5)
 
+    }
+
+    addPlayer() {
         this.addPoint_player1(1, 1)
         this.addPoint_player1(2, 1)
         this.addPoint_player1(3, 1)
         this.addFood_player1()
-        this.score_player1 = 10
+        this.score_player1 = 0
 
 
         this.addPoint_player2(20, 20)
@@ -207,6 +202,25 @@ export default class NewClass extends cc.Component {
         this.score_player2 = 0
 
         this.timer = setInterval(this.move.bind(this), 1000)
+
+        this.playerAdded = true
+    }
+
+    startCountdown(seconds) {
+        let counter = seconds;
+
+        const interval = setInterval(() => {
+            this.countDown.string = `game start in ${counter} second`
+            console.log(counter);
+            counter--;
+
+            if (counter < 0) {
+                clearInterval(interval);
+                console.log('Ding!');
+                this.countDown.string = ''
+                this.shldAddPlayer = true
+            }
+        }, 1000);
     }
 
     move() {
@@ -542,15 +556,10 @@ export default class NewClass extends cc.Component {
     }
 
 
-
-
     update(dt) {
 
-        this.frameCounter += 1
-
-        if (this.frameCounter == 10) {
-            WebsocketAdd({}, "hello", 99888, this.avatarObjOne, this.avatarObjTwo, this.shldFrameUpdate)
-            this.frameCounter = 0
+        if (this.shldAddPlayer && !this.playerAdded) {
+            this.addPlayer()
         }
 
         if (this.shldFrameUpdate.update) {
