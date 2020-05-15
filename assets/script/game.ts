@@ -61,8 +61,8 @@ export default class NewClass extends cc.Component {
     score_player1: number = 0
     score_player2: number = 0
     size = {
-        x: 20,
-        y: 20
+        x: 40,
+        y: 40
     }
     food_player1 = {
         x: 0,
@@ -195,9 +195,9 @@ export default class NewClass extends cc.Component {
         this.score_player1 = 0
 
 
-        this.addPoint_player2(20, 20)
-        this.addPoint_player2(19, 20)
-        this.addPoint_player2(18, 20)
+        this.addPoint_player2(40, 40)
+        this.addPoint_player2(39, 40)
+        this.addPoint_player2(38, 40)
         this.addFood_player2()
         this.score_player2 = 0
 
