@@ -10,7 +10,6 @@ import { websocketGame } from './socket/websocketGame'
 import { websocketFood } from './socket/websocketFood'
 import GlobalVars from '../script/global/global'
 import { getRandomInt } from './helper/getRandomInt';
-import gameStart from './gameComponent/gameStart';
 
 const { ccclass, property } = cc._decorator;
 
@@ -21,179 +20,68 @@ let score_player2 = 0
 @ccclass
 export default class NewClass extends cc.Component {
 
-    onLoad() {
-        console.log("on load here")
-        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown.bind(this))
+
+    //
+    @property(cc.Node)
+    root: cc.Node = null
+
+    @property(cc.SpriteFrame)
+    sprite: cc.SpriteFrame = null
+
+    @property(cc.Label)
+    label_player1: cc.Label = null
+
+    @property(cc.Label)
+    label_player2: cc.Label = null
+
+    @property(cc.Label)
+    labelUser: cc.Label = null
+
+    @property(cc.Sprite)
+    dpad_player1: cc.Sprite = null
+
+    @property(cc.Sprite)
+    dpad_player2: cc.Sprite = null
+    //
+
+
+    @property(cc.Label)
+    countDown: cc.Label = null
+
+
+    // global var
+    wsResponse: any;
+
+    curPlayer: number = 1;
+    loginUser: string;
+
+    moveAction: cc.ActionInterval;
+    map_player1: any = {}
+    map_player2: any = {}
+    score_player1: number = 0
+    score_player2: number = 0
+    size = {
+        x: 40,
+        y: 40
     }
-
-    async start() {
-
-        this.loginUser = GlobalVars.gusername
-
-        var result = await websocketGame({ "input": this.loginUser }, "addPlayer", 99888, this.avatarObjOne, this.avatarObjTwo, this.shldFrameUpdate, this.foodObj, this.shldFoodUpdate)
-
-        var obj = JSON.parse(result.toString());
-
-        this.curPlayer += obj.Data.indexOf(this.loginUser)
-
-        this.labelUser.string = `on control ${this.curPlayer == 1 ? 'blue' : "red"} snake`
-
-        this.startCountdown(0)
-
-
+    food_player1 = {
+        x: 0,
+        y: 0
     }
-
-    update(dt) {
-
-        if (this.shldAddPlayer && !this.playerAdded) {
-            this.addPlayer()
-        }
-
-        if (this.shldFrameUpdate.update) {
-
-            if (this.avatarObjOne.direction != "") {
-                switch (this.avatarObjOne.direction) {
-                    case "up":
-                        this.direction_player1 = cc.macro.KEY.up
-                        break
-                    case "down":
-                        this.direction_player1 = cc.macro.KEY.down
-                        break
-                    case "left":
-                        this.direction_player1 = cc.macro.KEY.left
-                        break
-                    case "right":
-                        this.direction_player1 = cc.macro.KEY.right
-                        break
-                }
-
-            }
-
-            if (this.avatarObjTwo.direction != "") {
-                switch (this.avatarObjTwo.direction) {
-                    case "up":
-                        this.direction_player2 = cc.macro.KEY.up
-                        break
-                    case "down":
-                        this.direction_player2 = cc.macro.KEY.down
-                        break
-                    case "left":
-                        this.direction_player2 = cc.macro.KEY.left
-                        break
-                    case "right":
-                        this.direction_player2 = cc.macro.KEY.right
-                        break
-                }
-            }
-
-            this.shldFrameUpdate.update = false
-
-        }
-
-        if (this.shldFoodUpdate.foodOneUpdate) {
-
-            this.addPoint_player1(this.foodObj.foodOneX, this.foodObj.foodOneY, cc.Color.BLUE)
-
-            this.shldFoodUpdate.foodOneUpdate = false
-        }
-
-        if (this.shldFoodUpdate.foodTwoUpdate) {
-
-            this.shldFoodUpdate.foodTwoUpdate = false
-        }
+    food_player2 = {
+        x: 0,
+        y: 0
     }
+    direction_player1: cc.macro.KEY = cc.macro.KEY.right
+    direction_player2: cc.macro.KEY = cc.macro.KEY.left
+    timer: any
 
-    addPlayer() {
-        this.addPoint_player1(1, 1)
-        this.addPoint_player1(2, 1)
-        this.addPoint_player1(3, 1)
-
-        this.score_player1 = 0
-
-
-        this.addPoint_player2(40, 40)
-        this.addPoint_player2(39, 40)
-        this.addPoint_player2(38, 40)
-
-        this.score_player2 = 0
-
-        this.spawnFood(
-            10,
-            10,
-            cc.Color.GREEN)
-
-        this.timer = setInterval(this.move.bind(this), 1000)
-
-        this.playerAdded = true
-    }
-
-    spawnFood(x: number, y: number, color: cc.Color = new cc.Color(0, 0, 255)) {
-        this.delFood()
-        const baseWidth = 720
-
-        const baseX = baseWidth / this.size.x
-        const baseY = baseWidth / this.size.y
-
-        const node = new cc.Node()
-        const sp = node.addComponent(cc.Sprite)
-        sp.spriteFrame = this.sprite
-        sp.type = cc.Sprite.Type.SLICED
-        node.parent = this.root
-
-        node.width = baseX - 4
-        node.height = baseY - 4
-        node.anchorX = 0
-        node.anchorY = 1
-        node.x = baseX * (x - 1) - baseWidth / 2 + 2
-        node.y = baseWidth / 2 - baseY * (y - 1) - 2
-        node.color = color
-
-        this.food.x = x
-        this.food.y = y
-        node.name = this.food.x + '_' + this.food.y
-    }
-
-    delFood() {
-        const name = this.food.x + '_' + this.food.y
-        const item = this.root.getChildByName(name)
-        if (item) {
-            item.destroy()
-        }
-    }
+    shldAddPlayer = false
+    playerAdded = false
 
 
-    addPoint_player1(x: number, y: number, color: cc.Color = new cc.Color(0, 0, 255)) {
-        const baseWidth = 720
-        const name = x + '_' + y
-        const nameFood = this.food.x + '_' + this.food.y
-        const baseX = baseWidth / this.size.x
-        const baseY = baseWidth / this.size.y
+    //
 
-
-        console.log("what hell is food" + JSON.stringify(this.food))
-
-        if (this.map_player1[name]) {
-            console.log("fuck u have ")
-            return
-        }
-        if (nameFood !== name) {
-            console.log("fuck u don't have")
-            this.map_player1[name] = true
-        }
-        const node = new cc.Node()
-        const sp = node.addComponent(cc.Sprite)
-        sp.spriteFrame = this.sprite
-        sp.type = cc.Sprite.Type.SLICED
-        node.parent = this.root
-        node.name = name
-        node.width = baseX - 4
-        node.height = baseY - 4
-        node.anchorX = 0
-        node.anchorY = 1
-        node.x = baseX * (x - 1) - baseWidth / 2 + 2
-        node.y = baseWidth / 2 - baseY * (y - 1) - 2
-        node.color = color
-    }
 
     wsHandleMove(direction) {
         var obj = {
@@ -246,6 +134,8 @@ export default class NewClass extends cc.Component {
         }
     }
 
+
+
     onKeyDown(event) {
         switch (event.keyCode) {
             case cc.macro.KEY.w:
@@ -276,6 +166,46 @@ export default class NewClass extends cc.Component {
             default:
                 break
         }
+    }
+
+    onLoad() {
+        console.log("on load here")
+        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown.bind(this))
+    }
+
+    async start() {
+
+        this.loginUser = GlobalVars.gusername
+
+        var result = await websocketGame({ "input": this.loginUser }, "addPlayer", 99888, this.avatarObjOne, this.avatarObjTwo, this.shldFrameUpdate, this.foodObj, this.shldFoodUpdate)
+
+        var obj = JSON.parse(result.toString());
+
+        this.curPlayer += obj.Data.indexOf(this.loginUser)
+
+        this.labelUser.string = `on control ${this.curPlayer == 1 ? 'blue' : "red"} snake`
+
+        this.startCountdown(1)
+
+    }
+
+    addPlayer() {
+        this.addPoint_player1(1, 1)
+        this.addPoint_player1(2, 1)
+        this.addPoint_player1(3, 1)
+        this.addFood_player1()
+        this.score_player1 = 0
+
+
+        this.addPoint_player2(40, 40)
+        this.addPoint_player2(39, 40)
+        this.addPoint_player2(38, 40)
+        this.addFood_player2()
+        this.score_player2 = 0
+
+        this.timer = setInterval(this.move.bind(this), 1000)
+
+        this.playerAdded = true
     }
 
     startCountdown(seconds) {
@@ -440,55 +370,114 @@ export default class NewClass extends cc.Component {
 
 
         // get points logic
-
-        if (point_player1.x === this.food.x && point_player1.y === this.food.y) {
+        if (point_player1.x === this.food_player2.x && point_player1.y === this.food_player2.y) {
             this.score_player1--
             this.label_player1.string = `PLAYER 1 \n 得分：${this.score_player1}`
-            this.spawnFood(
-                Math.floor(Math.random() * (39 - 1 + 1)) + 1,
-                Math.floor(Math.random() * (39 - 1 + 1)) + 1,
-                cc.Color.GREEN)
+            this.addFood_player2()
         }
 
-        if (point_player2.x === this.food.x && point_player2.y === this.food.y) {
+        if (point_player2.x === this.food_player1.x && point_player2.y === this.food_player1.y) {
             this.score_player2--
             this.label_player2.string = `PLAYER 2 \n 得分：${this.score_player2}`
-            this.spawnFood(
-                Math.floor(Math.random() * (39 - 1 + 1)) + 1,
-                Math.floor(Math.random() * (39 - 1 + 1)) + 1,
-                cc.Color.GREEN)
+            this.addFood_player1()
         }
 
-        if (point_player1.x === this.food.x && point_player1.y === this.food.y) {
+        if (point_player1.x === this.food_player1.x && point_player1.y === this.food_player1.y) {
             this.score_player1++
             this.label_player1.string = `PLAYER 1 \n 得分：${this.score_player1}`
-            this.spawnFood(
-                Math.floor(Math.random() * (39 - 1 + 1)) + 1,
-                Math.floor(Math.random() * (39 - 1 + 1)) + 1,
-                cc.Color.GREEN)
+            this.addFood_player1()
         } else {
             this.delPoint_player1(first_player1[0], first_player1[1])
         }
 
-        if (point_player2.x === this.food.x && point_player2.y === this.food.y) {
+        if (point_player2.x === this.food_player2.x && point_player2.y === this.food_player2.y) {
             this.score_player2++
             this.label_player2.string = `PLAYER 2 \n 得分： ${this.score_player2}`
-            this.spawnFood(
-                Math.floor(Math.random() * (39 - 1 + 1)) + 1,
-                Math.floor(Math.random() * (39 - 1 + 1)) + 1,
-                cc.Color.GREEN)
+            this.addFood_player2()
         } else {
             this.delPoint_player2(first_player2[0], first_player2[1])
         }
-
-
-        // this.delPoint_player1(first_player1[0], first_player1[1])
-        // this.delPoint_player2(first_player2[0], first_player2[1])
 
         this.addPoint_player1(point_player1.x, point_player1.y)
         this.addPoint_player2(point_player2.x, point_player2.y)
     }
 
+    over() {
+        clearInterval(this.timer)
+        console.log("destroying")
+        this.onDestroy()
+    }
+
+    gameOver: boolean
+
+    onDestroy() {
+        this.gameOver = true
+        console.log("destroying!!!!!!!!!!!!!!!!!")
+        websocketGame({}, "gameOver", 99888, this.avatarObjOne, this.avatarObjTwo, this.shldFrameUpdate, this.foodObj, this.shldFoodUpdate)
+    }
+
+    addFood_player1() {
+        this.delFood_player1()
+        //websocket delete food
+        const map = this.getMap_player1().sort((a: number, b: number) => this.getMapNumber(a[0], a[1]) - this.getMapNumber(b[0], b[1]))
+        const random = this.randomNum(1, this.size.x * this.size.y - map.length)
+        for (let i = 0; i < map.length; i++) {
+            const num = this.getMapNumber(map[i][0], map[i][1])
+            if (random < num) {
+                const point = this.getNumerMap(random + i)
+                this.food_player1 = point
+                //my g
+                // websocketFood({ "foodType": "1", "foodOneX": point.x, "foodOneY": point.y }, "spawnFood", 99888)
+                this.addPoint_player1(point.x, point.y, cc.Color.BLUE)
+                return
+            }
+        }
+        const pointLast = this.getNumerMap(random + map.length)
+        this.food_player1 = pointLast
+
+        console.log("player 1 food position my G " + pointLast.x + " " + pointLast.y)
+
+        //send new player 1 food to websocekt and shldPlyr1FoodUp listen to websocket resposne 
+        //then inside update check shldPlyr1FoodUp flag to  render new player 1 food
+        // websocketFood({ "foodType": "1", "foodOneX": pointLast.x, "foodOneY": pointLast.y }, "spawnFood", 99888)
+        this.addPoint_player1(pointLast.x, pointLast.y, cc.Color.BLUE)
+
+    }
+
+    delFood_player1() {
+        const name = this.food_player1.x + '_' + this.food_player1.y
+        const item = this.root.getChildByName(name)
+        if (item) {
+            item.destroy()
+        }
+    }
+
+    addPoint_player1(x: number, y: number, color: cc.Color = new cc.Color(0, 0, 255)) {
+        const baseWidth = 720
+        const name = x + '_' + y
+        const nameFood = this.food_player1.x + '_' + this.food_player1.y
+        const baseX = baseWidth / this.size.x
+        const baseY = baseWidth / this.size.y
+        if (this.map_player1[name]) {
+            return
+        }
+        if (nameFood !== name) {
+            this.map_player1[name] = true
+        }
+        const node = new cc.Node()
+        const sp = node.addComponent(cc.Sprite)
+        sp.spriteFrame = this.sprite
+        sp.type = cc.Sprite.Type.SLICED
+        node.parent = this.root
+        node.name = name
+        node.width = baseX - 4
+        node.height = baseY - 4
+        node.anchorX = 0
+        node.anchorY = 1
+        node.x = baseX * (x - 1) - baseWidth / 2 + 2
+        node.y = baseWidth / 2 - baseY * (y - 1) - 2
+        node.color = color
+    }
 
     delPoint_player1(x: number, y: number) {
         const name = x + '_' + y
@@ -502,23 +491,36 @@ export default class NewClass extends cc.Component {
         delete this.map_player1[name]
     }
 
-
-    delPoint_player2(x: number, y: number) {
-        const name = x + '_' + y
-        if (!this.map_player2[name]) {
-            return
+    addFood_player2() {
+        this.delFood_player2()
+        const map = this.getMap_player2().sort((a: number, b: number) => this.getMapNumber(a[0], a[1]) - this.getMapNumber(b[0], b[1]))
+        const random = this.randomNum(1, this.size.x * this.size.y - map.length)
+        for (let i = 0; i < map.length; i++) {
+            const num = this.getMapNumber(map[i][0], map[i][1])
+            if (random < num) {
+                const point = this.getNumerMap(random + i)
+                this.food_player2 = point
+                this.addPoint_player2(point.x, point.y, cc.Color.RED)
+                return
+            }
         }
+        const pointLast = this.getNumerMap(random + map.length)
+        this.food_player2 = pointLast
+        this.addPoint_player2(pointLast.x, pointLast.y, cc.Color.RED)
+    }
+
+    delFood_player2() {
+        const name = this.food_player2.x + '_' + this.food_player2.y
         const item = this.root.getChildByName(name)
         if (item) {
             item.destroy()
         }
-        delete this.map_player2[name]
     }
 
     addPoint_player2(x: number, y: number, color: cc.Color = new cc.Color(255, 0, 0)) {
         const baseWidth = 720
         const name = x + '_' + y
-        const nameFood = this.food.x + '_' + this.food.y
+        const nameFood = this.food_player2.x + '_' + this.food_player2.y
         const baseX = baseWidth / this.size.x
         const baseY = baseWidth / this.size.y
         if (this.map_player2[name]) {
@@ -542,79 +544,88 @@ export default class NewClass extends cc.Component {
         node.color = color
     }
 
-    over() {
-        clearInterval(this.timer)
-        console.log("destroying")
-        this.onDestroy()
+    delPoint_player2(x: number, y: number) {
+        const name = x + '_' + y
+        if (!this.map_player2[name]) {
+            return
+        }
+        const item = this.root.getChildByName(name)
+        if (item) {
+            item.destroy()
+        }
+        delete this.map_player2[name]
     }
 
-    gameOver: boolean
+    delPointAll() {
+        this.getMap_player1().map(item => this.delPoint_player1(item[0], item[1]))
+        this.getMap_player2().map(item => this.delPoint_player2(item[0], item[1]))
+    }
 
-    onDestroy() {
-        this.gameOver = true
-        console.log("destroying!!!!!!!!!!!!!!!!!")
-        websocketGame({}, "gameOver", 99888, this.avatarObjOne, this.avatarObjTwo, this.shldFrameUpdate, this.foodObj, this.shldFoodUpdate)
+    randomNum(minNum: number, maxNum: number): number {
+        return parseInt((Math.random() * (maxNum - minNum + 1) + minNum) + '', 10)
     }
 
 
+    update(dt) {
 
-    //--------------------------------------------------------------------------//
+        if (this.shldAddPlayer && !this.playerAdded) {
+            this.addPlayer()
+        }
 
-    //
-    @property(cc.Node)
-    root: cc.Node = null
+        if (this.shldFrameUpdate.update) {
 
-    @property(cc.SpriteFrame)
-    sprite: cc.SpriteFrame = null
+            if (this.avatarObjOne.direction != "") {
+                switch (this.avatarObjOne.direction) {
+                    case "up":
+                        this.direction_player1 = cc.macro.KEY.up
+                        break
+                    case "down":
+                        this.direction_player1 = cc.macro.KEY.down
+                        break
+                    case "left":
+                        this.direction_player1 = cc.macro.KEY.left
+                        break
+                    case "right":
+                        this.direction_player1 = cc.macro.KEY.right
+                        break
+                }
 
-    @property(cc.Label)
-    label_player1: cc.Label = null
+            }
 
-    @property(cc.Label)
-    label_player2: cc.Label = null
+            if (this.avatarObjTwo.direction != "") {
+                switch (this.avatarObjTwo.direction) {
+                    case "up":
+                        this.direction_player2 = cc.macro.KEY.up
+                        break
+                    case "down":
+                        this.direction_player2 = cc.macro.KEY.down
+                        break
+                    case "left":
+                        this.direction_player2 = cc.macro.KEY.left
+                        break
+                    case "right":
+                        this.direction_player2 = cc.macro.KEY.right
+                        break
+                }
+            }
 
-    @property(cc.Label)
-    labelUser: cc.Label = null
+            this.shldFrameUpdate.update = false
 
-    @property(cc.Sprite)
-    dpad_player1: cc.Sprite = null
+        }
 
-    @property(cc.Sprite)
-    dpad_player2: cc.Sprite = null
-    //
+        if (this.shldFoodUpdate.foodOneUpdate) {
 
+            this.addPoint_player1(this.foodObj.foodOneX, this.foodObj.foodOneY, cc.Color.BLUE)
 
-    @property(cc.Label)
-    countDown: cc.Label = null
+            this.shldFoodUpdate.foodOneUpdate = false
+        }
 
+        if (this.shldFoodUpdate.foodTwoUpdate) {
 
-    // global var
-    wsResponse: any;
-
-    curPlayer: number = 1;
-    loginUser: string;
-
-    moveAction: cc.ActionInterval;
-    map_player1: any = {}
-    map_player2: any = {}
-    score_player1: number = 0
-    score_player2: number = 0
-    size = {
-        x: 40,
-        y: 40
+            this.shldFoodUpdate.foodTwoUpdate = false
+        }
     }
-    food = {
-        x: 0,
-        y: 0
-    }
-    direction_player1: cc.macro.KEY = cc.macro.KEY.right
-    direction_player2: cc.macro.KEY = cc.macro.KEY.left
-    timer: any
 
-    shldAddPlayer = false
-    playerAdded = false
-
-    //
 
     avatarObjOne = { id: 1, direction: "" };
     avatarObjTwo = { id: 2, direction: "" };
