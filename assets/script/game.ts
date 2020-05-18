@@ -92,10 +92,12 @@ export default class NewClass extends cc.Component {
 
         if (this.shldFoodUpdate.foodOneUpdate) {
 
+            console.log("hello fengyu")
+
+
             this.spawnFood(
                 this.foodObj.foodOneX,
-                this.foodObj.foodOneY,
-                cc.Color.GREEN)
+                this.foodObj.foodOneY)
 
             this.shldFoodUpdate.foodOneUpdate = false
         }
@@ -117,14 +119,16 @@ export default class NewClass extends cc.Component {
         this.score_player2 = 0
 
 
-        websocketFood({ "foodType": "1", "foodOneX": 15, "foodOneY": 15 }, "spawnFood", 99888)
+        this.spawnFood(
+            15,
+            15)
 
         this.timer = setInterval(this.move.bind(this), 1000)
 
         this.playerAdded = true
     }
 
-    spawnFood(x: number, y: number, color: cc.Color = new cc.Color(0, 0, 255)) {
+    spawnFood(x: number, y: number) {
         this.delFood()
         const baseWidth = 720
 
@@ -143,19 +147,19 @@ export default class NewClass extends cc.Component {
         node.anchorY = 1
         node.x = baseX * (x - 1) - baseWidth / 2 + 2
         node.y = baseWidth / 2 - baseY * (y - 1) - 2
-        node.color = color
+        node.color = cc.Color.GREEN
 
         this.food.x = x
         this.food.y = y
         node.name = this.food.x + '_' + this.food.y
-
-
 
         this.shldFoodUpdate.foodOneUpdate = false
     }
 
     delFood() {
         const name = this.food.x + '_' + this.food.y
+
+        console.log("kimino namaiye wa " + name)
 
         if (name != "") {
             const item = this.root.getChildByName(name)
@@ -173,9 +177,6 @@ export default class NewClass extends cc.Component {
         const nameFood = this.food.x + '_' + this.food.y
         const baseX = baseWidth / this.size.x
         const baseY = baseWidth / this.size.y
-
-
-
 
         if (this.map_player1[name]) {
 
@@ -444,33 +445,15 @@ export default class NewClass extends cc.Component {
         }
 
 
-        // get points logic
-
-        if (point_player1.x === this.food.x && point_player1.y === this.food.y) {
-            this.score_player1--
-            this.label_player1.string = `PLAYER 1 \n 得分：${this.score_player1}`
-            this.spawnFood(
-                Math.floor(Math.random() * (39 - 1 + 1)) + 1,
-                Math.floor(Math.random() * (39 - 1 + 1)) + 1,
-                cc.Color.GREEN)
-        }
-
-        if (point_player2.x === this.food.x && point_player2.y === this.food.y) {
-            this.score_player2--
-            this.label_player2.string = `PLAYER 2 \n 得分：${this.score_player2}`
-            this.spawnFood(
-                Math.floor(Math.random() * (39 - 1 + 1)) + 1,
-                Math.floor(Math.random() * (39 - 1 + 1)) + 1,
-                cc.Color.GREEN)
-        }
+        // working here get points logic
 
         if (point_player1.x === this.food.x && point_player1.y === this.food.y) {
             this.score_player1++
             this.label_player1.string = `PLAYER 1 \n 得分：${this.score_player1}`
             this.spawnFood(
-                Math.floor(Math.random() * (39 - 1 + 1)) + 1,
-                Math.floor(Math.random() * (39 - 1 + 1)) + 1,
-                cc.Color.GREEN)
+                20,
+                20)
+
         } else {
             this.delPoint_player1(first_player1[0], first_player1[1])
         }
@@ -479,9 +462,9 @@ export default class NewClass extends cc.Component {
             this.score_player2++
             this.label_player2.string = `PLAYER 2 \n 得分： ${this.score_player2}`
             this.spawnFood(
-                Math.floor(Math.random() * (39 - 1 + 1)) + 1,
-                Math.floor(Math.random() * (39 - 1 + 1)) + 1,
-                cc.Color.GREEN)
+                25,
+                25)
+
         } else {
             this.delPoint_player2(first_player2[0], first_player2[1])
         }
