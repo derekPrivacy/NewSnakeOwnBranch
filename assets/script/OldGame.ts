@@ -177,7 +177,7 @@ export default class NewClass extends cc.Component {
 
         this.loginUser = GlobalVars.gusername
 
-        var result = await websocketGame({ "input": this.loginUser }, "addPlayer", 99888, this.avatarObjOne, this.avatarObjTwo, this.shldFrameUpdate, this.foodObj, this.shldFoodUpdate)
+        var result = await websocketGame({ "input": this.loginUser }, "addPlayer", 99888, this.avatarObjOne, this.avatarObjTwo, this.shldFrameUpdate, this.foodObj)
 
         var obj = JSON.parse(result.toString());
 
@@ -413,7 +413,7 @@ export default class NewClass extends cc.Component {
     onDestroy() {
         this.gameOver = true
         console.log("destroying!!!!!!!!!!!!!!!!!")
-        websocketGame({}, "gameOver", 99888, this.avatarObjOne, this.avatarObjTwo, this.shldFrameUpdate, this.foodObj, this.shldFoodUpdate)
+        websocketGame({}, "gameOver", 99888, this.avatarObjOne, this.avatarObjTwo, this.shldFrameUpdate, this.foodObj)
     }
 
     addFood_player1() {

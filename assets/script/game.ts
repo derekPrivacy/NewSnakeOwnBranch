@@ -22,7 +22,7 @@ let score_player2 = 0
 export default class NewClass extends cc.Component {
 
     onLoad() {
-        console.log("on load here")
+
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown.bind(this))
     }
 
@@ -92,15 +92,14 @@ export default class NewClass extends cc.Component {
 
         if (this.shldFoodUpdate.foodOneUpdate) {
 
-            this.addPoint_player1(this.foodObj.foodOneX, this.foodObj.foodOneY, cc.Color.BLUE)
+            this.spawnFood(
+                this.foodObj.foodOneX,
+                this.foodObj.foodOneY,
+                cc.Color.GREEN)
 
             this.shldFoodUpdate.foodOneUpdate = false
         }
 
-        if (this.shldFoodUpdate.foodTwoUpdate) {
-
-            this.shldFoodUpdate.foodTwoUpdate = false
-        }
     }
 
     addPlayer() {
@@ -117,10 +116,8 @@ export default class NewClass extends cc.Component {
 
         this.score_player2 = 0
 
-        this.spawnFood(
-            10,
-            10,
-            cc.Color.GREEN)
+
+        websocketFood({ "foodType": "1", "foodOneX": 15, "foodOneY": 15 }, "spawnFood", 99888)
 
         this.timer = setInterval(this.move.bind(this), 1000)
 
@@ -151,14 +148,22 @@ export default class NewClass extends cc.Component {
         this.food.x = x
         this.food.y = y
         node.name = this.food.x + '_' + this.food.y
+
+
+
+        this.shldFoodUpdate.foodOneUpdate = false
     }
 
     delFood() {
         const name = this.food.x + '_' + this.food.y
-        const item = this.root.getChildByName(name)
-        if (item) {
-            item.destroy()
+
+        if (name != "") {
+            const item = this.root.getChildByName(name)
+            if (item) {
+                item.destroy()
+            }
         }
+
     }
 
 
@@ -170,14 +175,14 @@ export default class NewClass extends cc.Component {
         const baseY = baseWidth / this.size.y
 
 
-        console.log("what hell is food" + JSON.stringify(this.food))
+
 
         if (this.map_player1[name]) {
-            console.log("fuck u have ")
+
             return
         }
         if (nameFood !== name) {
-            console.log("fuck u don't have")
+
             this.map_player1[name] = true
         }
         const node = new cc.Node()
@@ -283,12 +288,12 @@ export default class NewClass extends cc.Component {
 
         const interval = setInterval(() => {
             this.countDown.string = `game start in ${counter} second`
-            console.log(counter);
+
             counter--;
 
             if (counter < 0) {
                 clearInterval(interval);
-                console.log('Ding!');
+
                 this.countDown.string = ''
                 this.shldAddPlayer = true
             }
@@ -544,7 +549,7 @@ export default class NewClass extends cc.Component {
 
     over() {
         clearInterval(this.timer)
-        console.log("destroying")
+
         this.onDestroy()
     }
 
@@ -552,7 +557,7 @@ export default class NewClass extends cc.Component {
 
     onDestroy() {
         this.gameOver = true
-        console.log("destroying!!!!!!!!!!!!!!!!!")
+
         websocketGame({}, "gameOver", 99888, this.avatarObjOne, this.avatarObjTwo, this.shldFrameUpdate, this.foodObj, this.shldFoodUpdate)
     }
 

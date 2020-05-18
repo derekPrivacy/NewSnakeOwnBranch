@@ -5,7 +5,7 @@ export function websocketFood(object, msgType, roomNumber) {
         console.log("ws passed room number " + roomNumber)
         console.log("type message " + msgType)
 
-        var socket = new WebSocket('ws://18.219.41.101:8081/api/socketAdd');
+        var socket = new WebSocket('ws://localhost:8081/api/socketAdd');
 
         // on websocket error
         socket.addEventListener('error', function (event) {
@@ -41,8 +41,6 @@ export function websocketFood(object, msgType, roomNumber) {
             console.log("food food food back " + JSON.parse(JSON.stringify(event.data)))
 
             var response = JSON.parse(event.data)
-
-
 
             resolve(JSON.parse(JSON.stringify(event.data)))
         });

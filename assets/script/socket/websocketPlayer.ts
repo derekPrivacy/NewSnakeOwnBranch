@@ -5,7 +5,7 @@ export function WebsocketPlayer(object, msgType, roomNumber, ) {
     return new Promise(function (resolve, reject) {
         console.log("ws passed room number " + roomNumber)
 
-        var socket = new WebSocket('ws://18.219.41.101:8081/api/socket');
+        var socket = new WebSocket('ws://localhost:8081/api/socket');
 
         // on websocket error
         socket.addEventListener('error', function (event) {

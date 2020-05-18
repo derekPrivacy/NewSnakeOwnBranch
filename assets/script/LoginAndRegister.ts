@@ -28,16 +28,16 @@ export default class NewClass extends cc.Component {
 
     login() {
         var body = { 'user': this.username.string, 'password': this.password.string };
-        //var url = "https://cors-anywhere.herokuapp.com/http://18.219.41.101:8081/api/validateUser"
-        var url = "http://18.219.41.101:8081/api/validateUser"
+        //var url = "https://cors-anywhere.herokuapp.com/http://localhost:8081/api/validateUser"
+        var url = "http://localhost:8081/api/validateUser"
 
         loginPostApi(url, body, this.textLabel, this.username.string)
     }
 
     register() {
         var body = { 'user': this.username.string, 'password': this.password.string };
-        //var url = "https://cors-anywhere.herokuapp.com/http://18.219.41.101:8081/api/createUser"
-        var url = "http://18.219.41.101:8081/api/createUser"
+        //var url = "https://cors-anywhere.herokuapp.com/http://localhost:8081/api/createUser"
+        var url = "http://localhost:8081/api/createUser"
 
 
         //check is email

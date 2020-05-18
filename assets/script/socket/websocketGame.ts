@@ -8,7 +8,7 @@ export function websocketGame(
         console.log("ws passed room number " + roomNumber)
         console.log("type message " + msgType)
 
-        var socket = new WebSocket('ws://18.219.41.101:8081/api/socketAdd');
+        var socket = new WebSocket('ws://localhost:8081/api/socketAdd');
 
         // on websocket error
         socket.addEventListener('error', function (event) {
@@ -65,15 +65,12 @@ export function websocketGame(
             }
 
 
-            if (response["Food"]["FoodType"] == "1") {
+            if (response["Food"] != null && response["Food"]["FoodType"] == "1") {
+                console.log("refeshing the food now ")
                 foodObj.foodOneX = response["Food"]["FoodOneX"]
                 foodObj.foodOneY = response["Food"]["FoodOneY"]
 
                 shldFoodUpdate.foodOneUpdate = true
-            } else if (response["Food"]["FoodType"] == "2") {
-                foodObj.foodTwoX = response["Food"]["FoodTwoX"]
-                foodObj.foodTwoY = response["Food"]["FoodTwoY"]
-                shldFoodUpdate.foodTwoUpdate = true
             }
 
             // if response["foodType"]=="1"    
