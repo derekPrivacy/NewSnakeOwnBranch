@@ -90,17 +90,17 @@ export default class NewClass extends cc.Component {
 
         }
 
-        if (this.shldFoodUpdate.foodOneUpdate) {
+        // if (this.shldFoodUpdate.foodOneUpdate) {
 
-            console.log("hello fengyu")
+        //     console.log("hello fengyu")
 
 
-            this.spawnFood(
-                this.foodObj.foodOneX,
-                this.foodObj.foodOneY)
+        //     this.spawnFood(
+        //         this.foodObj.foodOneX,
+        //         this.foodObj.foodOneY)
 
-            this.shldFoodUpdate.foodOneUpdate = false
-        }
+        //     this.shldFoodUpdate.foodOneUpdate = false
+        // }
 
     }
 
@@ -119,9 +119,11 @@ export default class NewClass extends cc.Component {
         this.score_player2 = 0
 
 
+        console.log("cur food x and y is " + this.food.x + " " + this.food.y)
+        this.delFood()
         this.spawnFood(
-            15,
-            15)
+            10,
+            10)
 
         this.timer = setInterval(this.move.bind(this), 1000)
 
@@ -129,7 +131,7 @@ export default class NewClass extends cc.Component {
     }
 
     spawnFood(x: number, y: number) {
-        this.delFood()
+
         const baseWidth = 720
 
         const baseX = baseWidth / this.size.x
@@ -159,11 +161,12 @@ export default class NewClass extends cc.Component {
     delFood() {
         const name = this.food.x + '_' + this.food.y
 
-        console.log("kimino namaiye wa " + name)
+        console.log("deleting food " + name)
 
         if (name != "") {
             const item = this.root.getChildByName(name)
             if (item) {
+                console.log("food delete safe")
                 item.destroy()
             }
         }
@@ -450,9 +453,11 @@ export default class NewClass extends cc.Component {
         if (point_player1.x === this.food.x && point_player1.y === this.food.y) {
             this.score_player1++
             this.label_player1.string = `PLAYER 1 \n 得分：${this.score_player1}`
+            console.log("cur food x and y is " + this.food.x + " " + this.food.y)
+            this.delFood()
             this.spawnFood(
-                20,
-                20)
+                18,
+                18)
 
         } else {
             this.delPoint_player1(first_player1[0], first_player1[1])
@@ -461,6 +466,8 @@ export default class NewClass extends cc.Component {
         if (point_player2.x === this.food.x && point_player2.y === this.food.y) {
             this.score_player2++
             this.label_player2.string = `PLAYER 2 \n 得分： ${this.score_player2}`
+            console.log("cur food x and y is " + this.food.x + " " + this.food.y)
+            this.delFood()
             this.spawnFood(
                 25,
                 25)
@@ -468,10 +475,6 @@ export default class NewClass extends cc.Component {
         } else {
             this.delPoint_player2(first_player2[0], first_player2[1])
         }
-
-
-        // this.delPoint_player1(first_player1[0], first_player1[1])
-        // this.delPoint_player2(first_player2[0], first_player2[1])
 
         this.addPoint_player1(point_player1.x, point_player1.y)
         this.addPoint_player2(point_player2.x, point_player2.y)
